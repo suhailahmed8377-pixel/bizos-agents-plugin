@@ -68,7 +68,7 @@ add_filter('script_loader_tag', function ($tag, $handle) {
 
 add_action('wp_enqueue_scripts', function () {
     if (!is_page(BZA_SLUG)) return;
-    $v = '1.0.1';
+    $v = '1.0.2';
     wp_enqueue_style('bza-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap', [], null);
     wp_enqueue_style('bza', plugins_url('assets/agents.css', __FILE__), [], $v);
     wp_enqueue_script('bza', plugins_url('assets/agents.js', __FILE__), [], $v, true);
