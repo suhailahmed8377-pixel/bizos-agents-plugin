@@ -49,9 +49,26 @@ add_filter('wp_nav_menu_objects', function ($items) {
     return $items;
 });
 
+// Block-theme navigation links (core/navigation-link) labelled Shop/Products.
+add_filter('render_block', function ($html, $block) {
+    if (!in_array($block['blockName'] ?? '', ['core/navigation-link', 'core/navigation-submenu', 'core/page-list-item'], true)) return $html;
+    $label = strtolower(trim(wp_strip_all_tags($block['attrs']['label'] ?? $html)));
+    $url = (string) ($block['attrs']['url'] ?? '');
+    if (in_array($label, ['shop', 'products', 'product', 'store'], true) || preg_match('#/(shop|products?)(/|$)#', $url)) {
+        $html = preg_replace('#href="[^"]*"#', 'href="' . esc_url(bza_url()) . '"', $html, 1);
+        $html = preg_replace('#>\s*(Shop|Products?|Store)\s*<#i', '>Agents<', $html);
+    }
+    return $html;
+}, 10, 2);
+
+// Keep LiteSpeed from delaying the agents script until user interaction.
+add_filter('script_loader_tag', function ($tag, $handle) {
+    return $handle === 'bza' ? str_replace(' src=', ' data-no-optimize="1" data-no-defer="1" src=', $tag) : $tag;
+}, 10, 2);
+
 add_action('wp_enqueue_scripts', function () {
     if (!is_page(BZA_SLUG)) return;
-    $v = '1.0.0';
+    $v = '1.0.1';
     wp_enqueue_style('bza-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap', [], null);
     wp_enqueue_style('bza', plugins_url('assets/agents.css', __FILE__), [], $v);
     wp_enqueue_script('bza', plugins_url('assets/agents.js', __FILE__), [], $v, true);
